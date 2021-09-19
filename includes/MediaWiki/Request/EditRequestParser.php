@@ -4,11 +4,13 @@ namespace MediaWiki\Extension\WikibaseReconcileEdit\MediaWiki\Request;
 
 use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\FullWikibaseItemInput;
 use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\MinimalItemInput;
+use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\CompactItemInput;
 use MediaWiki\Rest\LocalizedHttpException;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 use Wikimedia\Message\MessageValue;
+use MediaWiki\MediaWikiServices;
 
 /**
  * @license GPL-2.0-or-later
@@ -29,14 +31,19 @@ class EditRequestParser {
 	/** @var MinimalItemInput */
 	private $minimalItemInput;
 
+	/** @var CompactItemInput */
+	private $compactItemInput;
+
 	public function __construct(
 		PropertyDataTypeLookup $propertyDataTypeLookup,
 		FullWikibaseItemInput $fullWikibaseItemInput,
-		MinimalItemInput $minimalItemInput
+		MinimalItemInput $minimalItemInput,
+		CompactItemInput $compactItemInput = null
 	) {
 		$this->propertyDataTypeLookup = $propertyDataTypeLookup;
 		$this->fullWikibaseItemInput = $fullWikibaseItemInput;
 		$this->minimalItemInput = $minimalItemInput;
+		$this->compactItemInput = $compactItemInput ?? MediaWikiServices::getInstance()->get('WikibaseReconcileEdit.CompactItemInput');
 	}
 
 	private function parseReconcilePropertyId( array $requestBody ): PropertyId {
@@ -109,6 +116,8 @@ class EditRequestParser {
 			$otherItems = [];
 		} elseif ( $inputEntityVersion === '0.0.1/minimal' ) {
 			[ $inputEntity, $otherItems ] = $this->minimalItemInput->getItem( $entity, $reconcilePropertyId );
+		} elseif ( $inputEntityVersion === '0.0.1/compact' ) {
+			[ $inputEntity, $otherItems ] = $this->compactItemInput->getItem( $entity, $reconcilePropertyId );
 		} else {
 			throw new LocalizedHttpException(
 				MessageValue::new( 'wikibasereconcileedit-invalid-entity-input-version' )

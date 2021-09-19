@@ -25,3 +25,7 @@ sftp-config.json
 /.eslintcache
 
 .api-testing.config.json
+
+docker-compose.yml
+LocalSettings.php
+.env
