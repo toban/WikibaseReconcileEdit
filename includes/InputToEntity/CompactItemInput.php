@@ -20,7 +20,7 @@ use Wikimedia\Message\MessageValue;
 /**
  * @license GPL-2.0-or-later
  */
-class MinimalItemInput {
+class CompactItemInput {
 
 	/**
 	 * @var PropertyDataTypeLookup
@@ -63,18 +63,24 @@ class MinimalItemInput {
 		$item = new Item();
 		$otherItems = [];
 
+		$lang = 'en';
+
+		if ( array_key_exists( 'lang', $inputEntity ) ) {
+			$lang = $inputEntity['lang'];
+		}
+
 		if ( array_key_exists( 'labels', $inputEntity ) ) {
-			foreach ( $inputEntity['labels'] as $lang => $label ) {
+			foreach ( $inputEntity['labels'] as $label ) {
 				$item->getLabels()->setTextForLanguage( $lang, $label );
 			}
 		}
 		if ( array_key_exists( 'descriptions', $inputEntity ) ) {
-			foreach ( $inputEntity['descriptions'] as $lang => $label ) {
+			foreach ( $inputEntity['descriptions'] as $label ) {
 				$item->getDescriptions()->setTextForLanguage( $lang, $label );
 			}
 		}
 		if ( array_key_exists( 'aliases', $inputEntity ) ) {
-			foreach ( $inputEntity['aliases'] as $lang => $aliases ) {
+			foreach ( $inputEntity['aliases'] as $aliases ) {
 				if ( $item->getAliasGroups()->hasGroupForLanguage( $lang ) ) {
 					$aliases = array_unique( array_merge( $aliases, $item->getAliasGroups()->getByLanguage( $lang ) ) );
 				}
@@ -90,26 +96,14 @@ class MinimalItemInput {
 
 		if ( array_key_exists( 'statements', $inputEntity ) ) {
 
-			foreach ( $inputEntity['statements'] as $statementDetails ) {
-				if ( !array_key_exists( 'property', $statementDetails ) ) {
-					throw new ReconciliationException(
-						MessageValue::new(
-							'wikibasereconcileedit-statements-missing-keys' )
-							->textParams( 'property' )
-					);
-				} elseif ( !array_key_exists( 'value', $statementDetails ) ) {
-					throw new ReconciliationException(
-						MessageValue::new(
-							'wikibasereconcileedit-statements-missing-keys' )
-							->textParams( 'value' )
-					);
-				}
-				$propertyId = $this->getPropertyId( $statementDetails['property'] );
+			foreach ( $inputEntity['statements'] as $statementLabel => $statementValue ) {
+
+				$propertyId = $this->getPropertyId( $statementLabel );
 
 				try {
 					[ $dataValue, $reconciliationServiceItems ] = $this->getDataValue(
 						$propertyId,
-						$statementDetails['value'],
+						$statementValue,
 						$reconcileUrlProperty
 					);
 				} catch ( PropertyDataTypeLookupException $exception ) {

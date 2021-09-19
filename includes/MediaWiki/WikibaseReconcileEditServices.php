@@ -3,6 +3,7 @@
 namespace MediaWiki\Extension\WikibaseReconcileEdit\MediaWiki;
 
 use MediaWiki\Extension\WikibaseReconcileEdit\EditStrategy\SimplePutStrategy;
+use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\CompactItemInput;
 use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\FullWikibaseItemInput;
 use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\MinimalItemInput;
 use MediaWiki\Extension\WikibaseReconcileEdit\MediaWiki\Request\EditRequestParser;
@@ -50,6 +51,11 @@ class WikibaseReconcileEditServices {
 	public static function getMinimalItemInput( ContainerInterface $services = null ): MinimalItemInput {
 		return ( $services ?: MediaWikiServices::getInstance() )
 			->get( 'WikibaseReconcileEdit.MinimalItemInput' );
+	}
+
+	public static function getCompactItemInput( ContainerInterface $services = null ): CompactItemInput {
+		return ( $services ?: MediaWikiServices::getInstance() )
+			->get( 'WikibaseReconcileEdit.CompactItemInput' );
 	}
 
 	public static function getPropertyLabelResolver( ContainerInterface $services = null ): PropertyLabelResolver {

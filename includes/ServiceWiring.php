@@ -3,6 +3,7 @@
 use MediaWiki\Extension\WikibaseReconcileEdit\EditStrategy\SimplePutStrategy;
 use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\FullWikibaseItemInput;
 use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\MinimalItemInput;
+use MediaWiki\Extension\WikibaseReconcileEdit\InputToEntity\CompactItemInput;
 use MediaWiki\Extension\WikibaseReconcileEdit\MediaWiki\ExternalLinks;
 use MediaWiki\Extension\WikibaseReconcileEdit\MediaWiki\Request\EditRequestParser;
 use MediaWiki\Extension\WikibaseReconcileEdit\MediaWiki\Request\EditRequestSaver;
@@ -26,7 +27,8 @@ return [
 		return new EditRequestParser(
 			$repo->getPropertyDataTypeLookup(),
 			WikibaseReconcileEditServices::getFullWikibaseItemInput( $services ),
-			WikibaseReconcileEditServices::getMinimalItemInput( $services )
+			WikibaseReconcileEditServices::getMinimalItemInput( $services ),
+			WikibaseReconcileEditServices::getCompactItemInput()
 		);
 	},
 
@@ -68,6 +70,17 @@ return [
 		$repo = WikibaseRepo::getDefaultInstance();
 
 		return new MinimalItemInput(
+			$repo->getPropertyDataTypeLookup(),
+			$repo->getValueParserFactory(),
+			WikibaseReconcileEditServices::getReconciliationService( $services ),
+			WikibaseReconcileEditServices::getPropertyLabelResolver( $services ),
+		);
+	},
+
+	'WikibaseReconcileEdit.CompactItemInput' => function ( MediaWikiServices $services ): CompactItemInput {
+		$repo = WikibaseRepo::getDefaultInstance();
+
+		return new CompactItemInput(
 			$repo->getPropertyDataTypeLookup(),
 			$repo->getValueParserFactory(),
 			WikibaseReconcileEditServices::getReconciliationService( $services ),
